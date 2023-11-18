@@ -9,6 +9,7 @@ from data.models import (
     LactateThreshold,
 )
 from data.actions import extract_data  # , extract_lap, extract_workout_set
+from datetime import timedelta
 
 # Register your models here.
 # admin.site.register(Activity)
@@ -18,7 +19,18 @@ from data.actions import extract_data  # , extract_lap, extract_workout_set
 class ActivityAdmin(admin.ModelAdmin):
     model = Activity
     actions = [extract_data]  # , extract_workout_set, extract_lap]
-    list_display = [field.name for field in model._meta.concrete_fields]
+    list_display = [field.name for field in model._meta.concrete_fields] + [
+        "_distance_km",
+        "_duration_time",
+    ]
+
+    @admin.display(description="Distance (km)")
+    def _distance_km(self, obj):
+        return round(obj.distance / 1000, 2)
+
+    @admin.display(description="Duration")
+    def _duration_time(self, obj):
+        return timedelta(seconds=round(obj.duration, 0))
 
 
 @admin.register(Record)
